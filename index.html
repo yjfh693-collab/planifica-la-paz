@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Planifica La Paz</title>
+<style>body{font:16px system-ui,sans-serif;max-width:720px;margin:12vh auto;padding:24px;color:#17352a}p{color:#53645c}</style>
+</head>
+<body>
+<h1>Planifica La Paz</h1>
+<p>Cargando el simulador financiero…</p>
+<script>
+(async()=>{
+ try{
+  const files=['src/index.part1.b64','src/index.part2.b64','src/index.part3.b64'];
+  const parts=await Promise.all(files.map(async path=>{
+   const response=await fetch(path);
+   if(!response.ok) throw new Error('No se pudo cargar '+path);
+   return (await response.text()).trim();
+  }));
+  const binary=atob(parts.join(''));
+  const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
+  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  const source=await new Response(stream).text();
+  document.open();document.write(source);document.close();
+ }catch(error){
+  document.body.innerHTML='<h1>No se pudo cargar la aplicación</h1><p>'+error.message+'</p><p>Comprueba que los archivos del repositorio estén completos y vuelve a cargar.</p>';
+ }
+})();
+</script>
+</body>
+</html>
